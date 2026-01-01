@@ -1,0 +1,35 @@
+# ASP.NET Core
+[Bb]in/
+[Oo]bj/
+[Dd]ll/
+[Oo]ut/
+*.suo
+*.user
+*.cache
+.vs/
+*.db
+*.mdf
+*.ldf
+*.bak
+
+# User files
+*.userprefs
+*.csproj.user
+
+# Packages
+packages/
+
+# Logs
+*.log
+*.trx
+
+# SQL files
+*.sql
+
+# Personal notes
+*.md
+
+# Large files
+wwwroot/images/**/*.jpg
+wwwroot/images/**/*.png
+wwwroot/lib/
