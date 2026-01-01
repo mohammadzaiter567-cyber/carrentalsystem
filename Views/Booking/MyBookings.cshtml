@@ -1,0 +1,94 @@
+﻿@model IEnumerable<projectadvanced.Models.Booking>
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<div class="page-header">
+    <h1><i class="bi bi-calendar-check me-3"></i>My Bookings</h1>
+    <p class="mb-0">View and manage your car rentals</p>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-calendar-x display-1 text-muted mb-3"></i>
+            <h3>No Bookings Yet</h3>
+            <p class="text-muted">Start by browsing available cars and make your first booking!</p>
+            <a asp-action="RentCars" class="btn btn-primary">
+                <i class="bi bi-car-front me-2"></i>Browse Cars
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var booking in Model.OrderByDescending(b => b.Id))
+        {
+            var days = (booking.EndDate - booking.StartDate).Days;
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100">
+                    @if (booking.Car != null && !string.IsNullOrEmpty(booking.Car.ImagePath))
+                    {
+                        <img src="@booking.Car.ImagePath" class="card-img-top" alt="@booking.Car.Brand" style="height: 160px; object-fit: cover;" />
+                    }
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <small class="text-muted">Booking #@booking.Id</small>
+                                <h5 class="card-title mb-0">@booking.Car?.Brand @booking.Car?.Model</h5>
+                            </div>
+                            @if (booking.Status == "Confirmed")
+                            {
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle me-1"></i>Confirmed
+                                </span>
+                            }
+                            else if (booking.Status == "Pending")
+                            {
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-clock me-1"></i>Pending
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">@booking.Status</span>
+                            }
+                        </div>
+
+                        <div class="booking-dates mb-3">
+                            <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: #f9fafb;">
+                                <div class="text-center">
+                                    <small class="text-muted d-block">Pick-up</small>
+                                    <strong>@booking.StartDate.ToString("MMM dd")</strong>
+                                </div>
+                                <div class="text-center">
+                                    <i class="bi bi-arrow-right text-muted"></i>
+                                    <small class="d-block text-muted">@days day(s)</small>
+                                </div>
+                                <div class="text-center">
+                                    <small class="text-muted d-block">Return</small>
+                                    <strong>@booking.EndDate.ToString("MMM dd")</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted">Total Paid</span>
+                            <span class="price">$@booking.TotalPrice.ToString("F2")</span>
+                        </div>
+                    </div>
+                    @if (booking.Status == "Confirmed")
+                    {
+                        <div class="card-footer bg-transparent border-top">
+                            <a asp-action="Confirmation" asp-route-id="@booking.Id" class="btn btn-outline-primary btn-sm w-100">
+                                <i class="bi bi-receipt me-2"></i>View Details
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}

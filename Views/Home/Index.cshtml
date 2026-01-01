@@ -1,0 +1,293 @@
+﻿@{
+    ViewData["Title"] = "Home";
+    Layout = "_Layout";
+}
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Premium Car Rentals</h1>
+        <p>Experience luxury and comfort with our exclusive fleet of vehicles</p>
+        <div class="hero-buttons">
+            <a asp-controller="Booking" asp-action="RentCars" class="btn btn-primary btn-lg">
+                <i class="bi bi-car-front me-2"></i>Browse Cars
+            </a>
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-outline-light btn-lg">
+                    <i class="bi bi-person-plus me-2"></i>Sign Up Free
+                </a>
+            }
+        </div>
+    </div>
+    <div class="hero-overlay"></div>
+</section>
+
+<!-- Features Section -->
+<section class="features">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h3>Fully Insured</h3>
+                    <p>All our vehicles come with comprehensive insurance coverage for your peace of mind.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-clock"></i>
+                    </div>
+                    <h3>24/7 Support</h3>
+                    <p>Our dedicated team is available around the clock to assist you with any needs.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                    <h3>Best Prices</h3>
+                    <p>Competitive rates with no hidden fees. What you see is what you pay.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-it-works">
+    <div class="container">
+        <h2 class="section-title">How It Works</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h4>Choose a Car</h4>
+                    <p>Browse our selection of premium vehicles</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h4>Select Dates</h4>
+                    <p>Pick your rental period</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h4>Make Payment</h4>
+                    <p>Secure online payment</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h4>Enjoy Your Ride</h4>
+                    <p>Pick up and hit the road</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta">
+    <div class="container text-center">
+        <h2>Ready to Hit the Road?</h2>
+        <p>Join thousands of satisfied customers who trust LUXE DRIVE</p>
+        <a asp-controller="Booking" asp-action="RentCars" class="btn btn-primary btn-lg">
+            <i class="bi bi-arrow-right me-2"></i>Get Started Now
+        </a>
+    </div>
+</section>
+
+<style>
+    /* Hero Section */
+    .hero {
+        background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+        min-height: 500px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        position: relative;
+        margin: -24px -12px 0;
+        padding: 80px 20px;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        max-width: 700px;
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: white;
+    }
+
+    .hero p {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin-bottom: 30px;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .hero-buttons .btn {
+        padding: 14px 32px;
+    }
+
+    .btn-outline-light {
+        border: 2px solid white;
+        color: white;
+        background: transparent;
+    }
+
+    .btn-outline-light:hover {
+        background: white;
+        color: #1e3a5f;
+    }
+
+    /* Features */
+    .features {
+        padding: 80px 0;
+        background: #f8fafc;
+        margin: 0 -12px;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 40px 30px;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        height: 100%;
+        transition: transform 0.3s;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+    }
+
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #0066cc, #0052a3);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        font-size: 2rem;
+        color: white;
+    }
+
+    .feature-card h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #1f2937;
+    }
+
+    .feature-card p {
+        color: #6b7280;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    /* How It Works */
+    .how-it-works {
+        padding: 80px 0;
+        background: white;
+        margin: 0 -12px;
+    }
+
+    .section-title {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 50px;
+        color: #1f2937;
+    }
+
+    .step {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .step-number {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #0066cc, #0052a3);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+    }
+
+    .step h4 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #1f2937;
+    }
+
+    .step p {
+        color: #6b7280;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    /* CTA */
+    .cta {
+        padding: 80px 0;
+        background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+        color: white;
+        margin: 0 -12px;
+    }
+
+    .cta h2 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 16px;
+        color: white;
+    }
+
+    .cta p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 30px;
+    }
+
+    @@media (max-width: 768px) {
+        .hero h1 {
+            font-size: 2rem;
+        }
+
+        .hero p {
+            font-size: 1rem;
+        }
+
+        .features, .how-it-works, .cta {
+            padding: 50px 0;
+        }
+    }
+</style>

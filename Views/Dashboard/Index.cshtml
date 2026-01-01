@@ -1,0 +1,694 @@
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+@section Head {
+    <style>
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .stat-card.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-card.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .stat-card.warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stat-card.info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .stat-card.danger {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        .stat-card.dark {
+            background: linear-gradient(135deg, #434343 0%, #000000 100%);
+        }
+
+        .stat-card h3 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .stat-card .icon {
+            font-size: 3rem;
+            opacity: 0.3;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .chart-container h4 {
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+
+        .chart-wrapper.large {
+            height: 400px;
+        }
+
+        .recent-activity {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .activity-item {
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .activity-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .badge-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-status.confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-status.rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .comparison-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .comparison-badge.positive {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .comparison-badge.negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border-width: 0.3em;
+        }
+    </style>
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-0">
+                <i class="bi bi-speedometer2 me-2"></i>Admin Dashboard
+            </h1>
+            <p class="text-muted">Comprehensive overview of your car rental business</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row" id="statsCards">
+        <div class="col-md-3">
+            <div class="stat-card primary position-relative">
+                <i class="bi bi-car-front icon"></i>
+                <h3 id="totalCars">-</h3>
+                <p>Total Cars</p>
+                <small id="availableCars">- Available</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card success position-relative">
+                <i class="bi bi-calendar-check icon"></i>
+                <h3 id="totalBookings">-</h3>
+                <p>Total Bookings</p>
+                <small id="confirmedBookings">- Confirmed</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card warning position-relative">
+                <i class="bi bi-currency-dollar icon"></i>
+                <h3 id="totalRevenue">$0</h3>
+                <p>Total Revenue</p>
+                <small id="revenueChange">-</small>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card info position-relative">
+                <i class="bi bi-people icon"></i>
+                <h3 id="totalCustomers">-</h3>
+                <p>Total Customers</p>
+                <small id="totalCategories">- Categories</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="chart-container">
+                <h4><i class="bi bi-graph-up me-2"></i>Revenue Over Time (Last 6 Months)</h4>
+                <div class="chart-wrapper large">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="chart-container">
+                <h4><i class="bi bi-pie-chart me-2"></i>Booking Status Distribution</h4>
+                <div class="chart-wrapper">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h4><i class="bi bi-bar-chart me-2"></i>Bookings Over Time (Last 6 Months)</h4>
+                <div class="chart-wrapper">
+                    <canvas id="bookingsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h4><i class="bi bi-tags me-2"></i>Category Popularity</h4>
+                <div class="chart-wrapper">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row 3 -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h4><i class="bi bi-trophy me-2"></i>Top 5 Performing Cars</h4>
+                <div class="chart-wrapper">
+                    <canvas id="topCarsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="recent-activity">
+                <h4><i class="bi bi-clock-history me-2"></i>Recent Activity</h4>
+                <div id="recentActivity">
+                    <div class="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Chart instances
+        let revenueChart, statusChart, bookingsChart, categoryChart, topCarsChart;
+
+        // Color palette
+        const colors = {
+            primary: '#667eea',
+            secondary: '#764ba2',
+            success: '#38ef7d',
+            warning: '#f5576c',
+            info: '#4facfe',
+            danger: '#fa709a',
+            gradient1: ['#667eea', '#764ba2'],
+            gradient2: ['#11998e', '#38ef7d'],
+            gradient3: ['#f093fb', '#f5576c'],
+            gradient4: ['#4facfe', '#00f2fe']
+        };
+
+        // Load all dashboard data
+        async function loadDashboard() {
+            try {
+                // Load statistics
+                const statsResponse = await fetch('/Dashboard/GetStatistics');
+                const stats = await statsResponse.json();
+                updateStatsCards(stats);
+
+                // Load revenue data
+                const revenueResponse = await fetch('/Dashboard/GetRevenueData');
+                const revenueData = await revenueResponse.json();
+                createRevenueChart(revenueData);
+
+                // Load booking status data
+                const statusResponse = await fetch('/Dashboard/GetBookingStatusData');
+                const statusData = await statusResponse.json();
+                createStatusChart(statusData);
+
+                // Load bookings over time
+                const bookingsResponse = await fetch('/Dashboard/GetBookingsOverTime');
+                const bookingsData = await bookingsResponse.json();
+                createBookingsChart(bookingsData);
+
+                // Load category popularity
+                const categoryResponse = await fetch('/Dashboard/GetCategoryPopularity');
+                const categoryData = await categoryResponse.json();
+                createCategoryChart(categoryData);
+
+                // Load top cars
+                const topCarsResponse = await fetch('/Dashboard/GetTopCars');
+                const topCarsData = await topCarsResponse.json();
+                createTopCarsChart(topCarsData);
+
+                // Load recent activity
+                const activityResponse = await fetch('/Dashboard/GetRecentActivity');
+                const activityData = await activityResponse.json();
+                displayRecentActivity(activityData);
+
+                // Load monthly comparison
+                const comparisonResponse = await fetch('/Dashboard/GetMonthlyComparison');
+                const comparison = await comparisonResponse.json();
+                updateComparison(comparison);
+
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        // Update statistics cards
+        function updateStatsCards(stats) {
+            document.getElementById('totalCars').textContent = stats.totalCars;
+            document.getElementById('availableCars').textContent = `${stats.availableCars} Available`;
+            document.getElementById('totalBookings').textContent = stats.totalBookings;
+            document.getElementById('confirmedBookings').textContent = `${stats.confirmedBookings} Confirmed`;
+            document.getElementById('totalRevenue').textContent = `$${stats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('totalCustomers').textContent = stats.totalCustomers;
+            document.getElementById('totalCategories').textContent = `${stats.totalCategories} Categories`;
+        }
+
+        // Update comparison data
+        function updateComparison(comparison) {
+            const revenueChange = comparison.revenue.change;
+            const bookingsChange = comparison.bookings.change;
+            
+            const revenueChangeEl = document.getElementById('revenueChange');
+            if (revenueChangeEl) {
+                const sign = revenueChange >= 0 ? '+' : '';
+                const badgeClass = revenueChange >= 0 ? 'positive' : 'negative';
+                revenueChangeEl.innerHTML = `<span class="comparison-badge ${badgeClass}">${sign}${revenueChange.toFixed(1)}% vs last month</span>`;
+            }
+        }
+
+        // Create Revenue Chart
+        function createRevenueChart(data) {
+            const ctx = document.getElementById('revenueChart').getContext('2d');
+            
+            if (revenueChart) {
+                revenueChart.destroy();
+            }
+
+            revenueChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.label),
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: data.map(d => d.revenue),
+                        borderColor: colors.primary,
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: colors.primary,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            padding: 12,
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.parsed.y.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create Status Chart
+        function createStatusChart(data) {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            
+            if (statusChart) {
+                statusChart.destroy();
+            }
+
+            const statusColors = {
+                'Confirmed': '#38ef7d',
+                'Pending': '#f5576c',
+                'Rejected': '#fa709a',
+                'Approved': '#4facfe'
+            };
+
+            statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(d => d.status),
+                    datasets: [{
+                        data: data.map(d => d.count),
+                        backgroundColor: data.map(d => statusColors[d.status] || colors.primary),
+                        borderWidth: 0,
+                        hoverOffset: 10
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: { size: 12 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            padding: 12
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create Bookings Chart
+        function createBookingsChart(data) {
+            const ctx = document.getElementById('bookingsChart').getContext('2d');
+            
+            if (bookingsChart) {
+                bookingsChart.destroy();
+            }
+
+            bookingsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.label),
+                    datasets: [{
+                        label: 'Bookings',
+                        data: data.map(d => d.count),
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderColor: colors.primary,
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            padding: 12
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create Category Chart
+        function createCategoryChart(data) {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            
+            if (categoryChart) {
+                categoryChart.destroy();
+            }
+
+            const categoryColors = [
+                '#667eea', '#764ba2', '#11998e', '#38ef7d', 
+                '#f093fb', '#f5576c', '#4facfe', '#00f2fe'
+            ];
+
+            categoryChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.category),
+                    datasets: [{
+                        label: 'Bookings',
+                        data: data.map(d => d.bookings),
+                        backgroundColor: categoryColors.slice(0, data.length),
+                        borderColor: categoryColors.slice(0, data.length),
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            padding: 12
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create Top Cars Chart
+        function createTopCarsChart(data) {
+            const ctx = document.getElementById('topCarsChart').getContext('2d');
+            
+            if (topCarsChart) {
+                topCarsChart.destroy();
+            }
+
+            topCarsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.carName),
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: data.map(d => d.revenue),
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                        borderColor: colors.primary,
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.parsed.y.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Display Recent Activity
+        function displayRecentActivity(data) {
+            const container = document.getElementById('recentActivity');
+            
+            if (data.length === 0) {
+                container.innerHTML = '<p class="text-muted text-center">No recent activity</p>';
+                return;
+            }
+
+            container.innerHTML = data.map(item => `
+                <div class="activity-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <strong>${item.carName}</strong><br>
+                            <small class="text-muted">${item.customerEmail}</small><br>
+                            <small class="text-muted">
+                                <i class="bi bi-calendar3 me-1"></i>${item.startDate} - ${item.endDate}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge-status ${item.status.toLowerCase()}">${item.status}</span><br>
+                            <strong class="text-primary">$${item.totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize dashboard on page load
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+}
+

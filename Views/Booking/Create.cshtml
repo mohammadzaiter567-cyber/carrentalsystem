@@ -1,0 +1,190 @@
+﻿@model projectadvanced.Models.Booking
+@{
+    ViewData["Title"] = "Book Car";
+    var car = ViewBag.Car as projectadvanced.Models.Car;
+    var minStartDate = (DateTime)(ViewBag.MinStartDate ?? DateTime.Now.Date);
+    var isBooked = minStartDate > DateTime.Now.Date;
+}
+
+<div class="page-header">
+    <h1><i class="bi bi-calendar-plus me-3"></i>Book Your Rental</h1>
+    <p class="mb-0">Complete your car rental booking</p>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-car-front me-2"></i>Car Details</h5>
+            </div>
+            @if (car != null)
+            {
+                @if (!string.IsNullOrEmpty(car.ImagePath))
+                {
+                    <img src="@car.ImagePath" class="card-img-top" alt="@car.Brand @car.Model" style="height: 200px; object-fit: cover;" />
+                }
+                else
+                {
+                    <div class="d-flex align-items-center justify-content-center" style="height: 200px; background: #f3f4f6;">
+                        <i class="bi bi-car-front display-1 text-muted"></i>
+                    </div>
+                }
+                <div class="card-body">
+                    <h5 class="card-title">@car.Brand @car.Model</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-calendar3 me-2 text-accent"></i>
+                            <strong>Year:</strong> @car.Year
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-card-text me-2 text-accent"></i>
+                            <strong>Plate:</strong> @car.PlateNumber
+                        </li>
+                        @if (car.Category != null)
+                        {
+                            <li class="mb-2">
+                                <i class="bi bi-tag me-2 text-accent"></i>
+                                <strong>Category:</strong> @car.Category.Name
+                            </li>
+                        }
+                        <li class="mb-0">
+                            <i class="bi bi-currency-dollar me-2 text-accent"></i>
+                            <strong>Daily Rate:</strong> 
+                            <span class="price">$@car.DailyPrice.ToString("F2")</span>
+                        </li>
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-calendar-range me-2"></i>Select Rental Dates</h5>
+            </div>
+            <div class="card-body">
+                @if (isBooked)
+                {
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle me-2"></i>
+                        This car is currently booked. You can book it starting from <strong>@minStartDate.ToString("MMM dd, yyyy")</strong>.
+                    </div>
+                }
+
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <input type="hidden" asp-for="CarId" />
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="StartDate" class="form-label">
+                                <i class="bi bi-calendar-event me-2"></i>Pick-up Date <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="StartDate" class="form-control" type="date" id="startDate" 
+                                   min="@minStartDate.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="StartDate" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="EndDate" class="form-label">
+                                <i class="bi bi-calendar-check me-2"></i>Return Date <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="EndDate" class="form-control" type="date" id="endDate"
+                                   min="@minStartDate.AddDays(1).ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="EndDate" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4" style="background: #f9fafb;">
+                        <div class="card-body">
+                            <h6 class="card-title"><i class="bi bi-receipt me-2"></i>Price Estimate</h6>
+                            <div class="row">
+                                <div class="col-6">
+                                    <span class="text-muted">Daily Rate:</span>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <strong>$@car.DailyPrice.ToString("F2")</strong>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <span class="text-muted">Number of Days:</span>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <strong><span id="numDays">0</span> days</strong>
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <div class="col-6">
+                                    <span class="fw-bold">Estimated Total:</span>
+                                </div>
+                                <div class="col-6 text-end">
+                                    <span class="price" id="totalPrice">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="RentCars" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Cars
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-2"></i>Continue to Payment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        const dailyRate = @(car?.DailyPrice ?? 0);
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        const numDaysSpan = document.getElementById('numDays');
+        const totalPriceSpan = document.getElementById('totalPrice');
+
+        function calculateTotal() {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            
+            if (startDate && endDate && !isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+                const diffTime = endDate - startDate;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                if (diffDays > 0) {
+                    numDaysSpan.textContent = diffDays;
+                    const total = diffDays * dailyRate;
+                    totalPriceSpan.textContent = '$' + total.toFixed(2);
+                } else {
+                    numDaysSpan.textContent = '0';
+                    totalPriceSpan.textContent = '$0.00';
+                }
+            }
+        }
+
+        startDateInput?.addEventListener('change', function() {
+            const startDate = new Date(this.value);
+            if (startDate && !isNaN(startDate.getTime())) {
+                const minEndDate = new Date(startDate);
+                minEndDate.setDate(minEndDate.getDate() + 1);
+                endDateInput.min = minEndDate.toISOString().split('T')[0];
+                if (endDateInput.value && new Date(endDateInput.value) <= startDate) {
+                    endDateInput.value = minEndDate.toISOString().split('T')[0];
+                }
+            }
+            calculateTotal();
+        });
+
+        endDateInput?.addEventListener('change', calculateTotal);
+    </script>
+}

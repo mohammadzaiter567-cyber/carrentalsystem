@@ -1,0 +1,209 @@
+@model IEnumerable<projectadvanced.Models.Car>
+@{
+    ViewData["Title"] = "Rent a Car";
+    var activeBookings = ViewBag.ActiveBookings as List<projectadvanced.Models.Booking> ?? new List<projectadvanced.Models.Booking>();
+}
+
+<div class="page-header full-width" style="border-radius: 0; margin-top: -24px;">
+    <div class="container">
+        <h1><i class="bi bi-car-front-fill me-3"></i>Rent a Car</h1>
+        <p class="mb-0">Browse our premium fleet and find your perfect ride</p>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-car-front display-1 text-muted mb-3"></i>
+            <h3>No Cars Available</h3>
+            <p class="text-muted">Please check back later for available rentals.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" id="searchInput" class="form-control" placeholder="Search by brand, model, or category...">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <select id="categoryFilter" class="form-select">
+                <option value="">All Categories</option>
+                @foreach (var category in Model.Where(c => c.Category != null).Select(c => c.Category).DistinctBy(c => c.Id))
+                {
+                    <option value="@category.Name">@category.Name</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select id="availabilityFilter" class="form-select">
+                <option value="">All Cars</option>
+                <option value="available">Available Now</option>
+                <option value="booked">Currently Booked</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2" id="carsContainer">
+        @foreach (var car in Model)
+        {
+            var booking = activeBookings.FirstOrDefault(b => b.CarId == car.Id);
+            var isCurrentlyBooked = booking != null;
+            var availableDate = booking?.EndDate.AddDays(1);
+            
+            <div class="col-md-6 col-lg-4 car-item" 
+                 data-brand="@car.Brand.ToLower()" 
+                 data-model="@car.Model.ToLower()" 
+                 data-category="@(car.Category?.Name ?? "")"
+                 data-available="@(isCurrentlyBooked ? "booked" : "available")">
+                <div class="card car-card h-100">
+                    @if (!string.IsNullOrEmpty(car.ImagePath))
+                    {
+                        <img src="@car.ImagePath" class="card-img-top car-image" alt="@car.Brand @car.Model" />
+                    }
+                    else
+                    {
+                        <div class="card-img-top car-image d-flex align-items-center justify-content-center" style="background: #f3f4f6;">
+                            <i class="bi bi-car-front display-1 text-muted"></i>
+                        </div>
+                    }
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">@car.Brand @car.Model</h5>
+                            @if (isCurrentlyBooked)
+                            {
+                                <span class="badge bg-warning text-dark">Booked</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Available</span>
+                            }
+                        </div>
+                        
+                        @if (car.Category != null)
+                        {
+                            <span class="badge bg-secondary mb-3" style="width: fit-content;">
+                                <i class="bi bi-tag me-1"></i>@car.Category.Name
+                            </span>
+                        }
+
+                        <div class="car-details mb-3">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="bi bi-calendar3 me-2"></i>
+                                        <span>@car.Year</span>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center text-muted">
+                                        <i class="bi bi-card-text me-2"></i>
+                                        <span>@car.PlateNumber</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (isCurrentlyBooked && availableDate.HasValue)
+                        {
+                            <div class="alert alert-warning py-2 px-3 mb-3">
+                                <small>
+                                    <i class="bi bi-clock me-1"></i>
+                                    Available from <strong>@availableDate.Value.ToString("MMM dd, yyyy")</strong>
+                                </small>
+                            </div>
+                        }
+
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <span class="price">$@car.DailyPrice.ToString("F2")</span>
+                                    <span class="price-small">/ day</span>
+                                </div>
+                            </div>
+                            
+                            @if (User.Identity.IsAuthenticated && !User.IsInRole("Admin"))
+                            {
+                                @if (isCurrentlyBooked)
+                                {
+                                    <a asp-action="Create" asp-route-carId="@car.Id" class="btn btn-outline-primary w-100">
+                                        <i class="bi bi-calendar-plus me-2"></i>Book for Later
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-action="Create" asp-route-carId="@car.Id" class="btn btn-primary w-100">
+                                        <i class="bi bi-calendar-check me-2"></i>Rent Now
+                                    </a>
+                                }
+                            }
+                            else if (!User.Identity.IsAuthenticated)
+                            {
+                                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-primary w-100">
+                                    <i class="bi bi-box-arrow-in-right me-2"></i>Login to Rent
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div id="noResults" class="text-center py-5 d-none">
+        <i class="bi bi-search display-1 text-muted mb-3"></i>
+        <h4>No cars match your search</h4>
+        <p class="text-muted">Try adjusting your filters</p>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const availabilityFilter = document.getElementById('availabilityFilter');
+            const carsContainer = document.getElementById('carsContainer');
+            const noResults = document.getElementById('noResults');
+
+            function filterCars() {
+                const searchTerm = searchInput?.value.toLowerCase() || '';
+                const category = categoryFilter?.value || '';
+                const availability = availabilityFilter?.value || '';
+                const cars = Array.from(document.querySelectorAll('.car-item'));
+                
+                let visibleCount = 0;
+
+                cars.forEach(car => {
+                    const brand = car.dataset.brand;
+                    const model = car.dataset.model;
+                    const carCategory = car.dataset.category;
+                    const carAvailability = car.dataset.available;
+                    
+                    const matchesSearch = brand.includes(searchTerm) || model.includes(searchTerm) || carCategory.toLowerCase().includes(searchTerm);
+                    const matchesCategory = !category || carCategory === category;
+                    const matchesAvailability = !availability || carAvailability === availability;
+
+                    if (matchesSearch && matchesCategory && matchesAvailability) {
+                        car.classList.remove('d-none');
+                        visibleCount++;
+                    } else {
+                        car.classList.add('d-none');
+                    }
+                });
+
+                if (noResults) {
+                    noResults.classList.toggle('d-none', visibleCount > 0);
+                }
+            }
+
+            searchInput?.addEventListener('input', filterCars);
+            categoryFilter?.addEventListener('change', filterCars);
+            availabilityFilter?.addEventListener('change', filterCars);
+        });
+    </script>
+}

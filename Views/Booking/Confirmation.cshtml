@@ -1,0 +1,435 @@
+@model projectadvanced.Models.Booking
+@{
+    ViewData["Title"] = "Booking Confirmed";
+    var payment = ViewBag.Payment as projectadvanced.Models.Payment;
+    var days = (Model.EndDate - Model.StartDate).Days;
+}
+
+<div class="confirmation-page">
+    <!-- Success Header -->
+    <div class="success-header">
+        <div class="success-icon">
+            <i class="bi bi-check-lg"></i>
+        </div>
+        <h1>Booking Confirmed!</h1>
+        <p>Your reservation has been successfully processed</p>
+        <div class="booking-ref">
+            <span class="ref-label">Booking Reference</span>
+            <span class="ref-number">BK-@Model.Id.ToString("D6")</span>
+        </div>
+    </div>
+
+    <div class="confirmation-content">
+        <div class="row g-4">
+            <!-- Car Info -->
+            <div class="col-lg-8">
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <i class="bi bi-car-front"></i>
+                        <span>Vehicle Details</span>
+                    </div>
+                    <div class="info-card-body">
+                        @if (Model.Car != null)
+                        {
+                            <div class="car-info">
+                                @if (!string.IsNullOrEmpty(Model.Car.ImagePath))
+                                {
+                                    <img src="@Model.Car.ImagePath" alt="@Model.Car.Brand" class="car-img" />
+                                }
+                                else
+                                {
+                                    <div class="car-img-placeholder">
+                                        <i class="bi bi-car-front"></i>
+                                    </div>
+                                }
+                                <div class="car-details">
+                                    <h3>@Model.Car.Brand @Model.Car.Model</h3>
+                                    <div class="car-specs">
+                                        <span><i class="bi bi-calendar3"></i> @Model.Car.Year</span>
+                                        <span><i class="bi bi-card-text"></i> @Model.Car.PlateNumber</span>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Rental Period -->
+                <div class="info-card mt-4">
+                    <div class="info-card-header">
+                        <i class="bi bi-calendar-range"></i>
+                        <span>Rental Period</span>
+                    </div>
+                    <div class="info-card-body">
+                        <div class="date-range">
+                            <div class="date-box">
+                                <span class="date-label">Pick-up</span>
+                                <span class="date-value">@Model.StartDate.ToString("ddd, MMM dd")</span>
+                                <span class="date-year">@Model.StartDate.ToString("yyyy")</span>
+                            </div>
+                            <div class="date-arrow">
+                                <i class="bi bi-arrow-right"></i>
+                                <span>@days day(s)</span>
+                            </div>
+                            <div class="date-box">
+                                <span class="date-label">Return</span>
+                                <span class="date-value">@Model.EndDate.ToString("ddd, MMM dd")</span>
+                                <span class="date-year">@Model.EndDate.ToString("yyyy")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Summary -->
+            <div class="col-lg-4">
+                <div class="payment-card">
+                    <div class="payment-header">
+                        <i class="bi bi-receipt"></i>
+                        <span>Payment Summary</span>
+                    </div>
+                    <div class="payment-body">
+                        <div class="payment-status">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>Payment Successful</span>
+                        </div>
+                        
+                        <div class="payment-details">
+                            <div class="payment-row">
+                                <span>Daily Rate</span>
+                                <span>$200.00</span>
+                            </div>
+                            <div class="payment-row">
+                                <span>Duration</span>
+                                <span>@days day(s)</span>
+                            </div>
+                            <div class="payment-row total">
+                                <span>Total Paid</span>
+                                <span>$@Model.TotalPrice.ToString("F2")</span>
+                            </div>
+                        </div>
+
+                        @if (payment != null)
+                        {
+                            <div class="payment-method">
+                                <div class="method-row">
+                                    <i class="bi bi-credit-card"></i>
+                                    <span>•••• @payment.CardLast4</span>
+                                </div>
+                                <div class="method-row small">
+                                    <span>Transaction: @payment.TransactionId</span>
+                                </div>
+                                <div class="method-row small">
+                                    <span>@payment.PaymentDate.ToString("MMM dd, yyyy • HH:mm")</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="confirmation-actions">
+            <a asp-action="MyBookings" class="btn btn-primary">
+                <i class="bi bi-list-check me-2"></i>View My Bookings
+            </a>
+            <a asp-action="RentCars" class="btn btn-secondary">
+                <i class="bi bi-car-front me-2"></i>Rent Another Car
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .confirmation-page {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .success-header {
+        text-align: center;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #059669, #10b981);
+        border-radius: 16px;
+        color: white;
+        margin-bottom: 30px;
+    }
+
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2.5rem;
+    }
+
+    .success-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 8px;
+        color: white;
+    }
+
+    .success-header p {
+        opacity: 0.9;
+        margin: 0 0 24px;
+        font-size: 1rem;
+    }
+
+    .booking-ref {
+        display: inline-flex;
+        flex-direction: column;
+        background: rgba(255,255,255,0.15);
+        padding: 12px 24px;
+        border-radius: 10px;
+    }
+
+    .ref-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.8;
+    }
+
+    .ref-number {
+        font-size: 1.25rem;
+        font-weight: 700;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 2px;
+    }
+
+    .info-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .info-card-header {
+        background: #f9fafb;
+        padding: 14px 20px;
+        border-bottom: 1px solid #e5e7eb;
+        font-weight: 600;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .info-card-body {
+        padding: 20px;
+    }
+
+    .car-info {
+        display: flex;
+        gap: 20px;
+        align-items: center;
+    }
+
+    .car-img {
+        width: 160px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .car-img-placeholder {
+        width: 160px;
+        height: 100px;
+        background: #f3f4f6;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #9ca3af;
+    }
+
+    .car-details h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0 0 10px;
+        color: #1f2937;
+    }
+
+    .car-specs {
+        display: flex;
+        gap: 16px;
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    .car-specs span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .date-range {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
+
+    .date-box {
+        flex: 1;
+        text-align: center;
+        padding: 16px;
+        background: #f9fafb;
+        border-radius: 10px;
+    }
+
+    .date-label {
+        display: block;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #6b7280;
+        margin-bottom: 6px;
+    }
+
+    .date-value {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .date-year {
+        display: block;
+        font-size: 0.85rem;
+        color: #9ca3af;
+    }
+
+    .date-arrow {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        color: #9ca3af;
+        font-size: 0.8rem;
+    }
+
+    .date-arrow i {
+        font-size: 1.25rem;
+        color: #0066cc;
+    }
+
+    .payment-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .payment-header {
+        background: #1e3a5f;
+        padding: 14px 20px;
+        color: white;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .payment-body {
+        padding: 20px;
+    }
+
+    .payment-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        background: #d1fae5;
+        color: #065f46;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+    }
+
+    .payment-details {
+        margin-bottom: 20px;
+    }
+
+    .payment-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 0.9rem;
+        color: #6b7280;
+    }
+
+    .payment-row.total {
+        border-bottom: none;
+        padding-top: 14px;
+        margin-top: 6px;
+        border-top: 2px solid #e5e7eb;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: #1f2937;
+    }
+
+    .payment-row.total span:last-child {
+        color: #0066cc;
+    }
+
+    .payment-method {
+        background: #f9fafb;
+        padding: 14px;
+        border-radius: 8px;
+    }
+
+    .method-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #374151;
+        font-size: 0.9rem;
+    }
+
+    .method-row.small {
+        font-size: 0.8rem;
+        color: #9ca3af;
+        margin-top: 6px;
+    }
+
+    .confirmation-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 30px;
+        padding-bottom: 20px;
+    }
+
+    @@media (max-width: 768px) {
+        .car-info {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .date-range {
+            flex-direction: column;
+        }
+
+        .date-arrow {
+            transform: rotate(90deg);
+        }
+
+        .confirmation-actions {
+            flex-direction: column;
+        }
+
+        .confirmation-actions .btn {
+            width: 100%;
+        }
+    }
+</style>

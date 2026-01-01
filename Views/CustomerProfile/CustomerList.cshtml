@@ -1,0 +1,169 @@
+@model IEnumerable<Microsoft.AspNetCore.Identity.IdentityUser>
+@{
+    ViewData["Title"] = "Customers";
+}
+
+<style>
+    .customers-page {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .page-title {
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(44, 62, 80, 0.3);
+    }
+    .page-title h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    .page-title p {
+        opacity: 0.9;
+        margin: 0;
+    }
+    .stats-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+    .stats-card .number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    .stats-card .label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+    .customer-card {
+        background: white;
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    .customer-card .card-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        color: white;
+        padding: 1rem 1.5rem;
+        border: none;
+    }
+    .customer-table {
+        margin: 0;
+    }
+    .customer-table thead th {
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+        font-weight: 600;
+        color: #333;
+        padding: 1rem 1.5rem;
+    }
+    .customer-table tbody td {
+        padding: 1rem 1.5rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .customer-table tbody tr:hover {
+        background: #f8f9ff;
+    }
+    .customer-avatar {
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    .customer-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .customer-email {
+        font-weight: 500;
+        color: #333;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    .empty-state i {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="customers-page">
+    <div class="page-title">
+        <h1><i class="bi bi-people-fill me-3"></i>Customers</h1>
+        <p>View all registered customers in the system</p>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="customer-card">
+            <div class="empty-state">
+                <i class="bi bi-people"></i>
+                <h3>No Customers Yet</h3>
+                <p class="text-muted">There are no registered customers in the system.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <div class="number">@Model.Count()</div>
+                    <div class="label">Total Customers</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="customer-card">
+            <div class="card-header">
+                <strong><i class="bi bi-list me-2"></i>Customer List</strong>
+            </div>
+            <div class="table-responsive">
+                <table class="table customer-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 60px;">#</th>
+                            <th>Customer</th>
+                            <th>Username</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ var index = 1; }
+                        @foreach (var customer in Model)
+                        {
+                            var initial = !string.IsNullOrEmpty(customer.Email) ? customer.Email[0].ToString().ToUpper() : "?";
+                            <tr>
+                                <td><strong>@index</strong></td>
+                                <td>
+                                    <div class="customer-info">
+                                        <div class="customer-avatar">@initial</div>
+                                        <span class="customer-email">@customer.Email</span>
+                                    </div>
+                                </td>
+                                <td>@customer.UserName</td>
+                            </tr>
+                            index++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

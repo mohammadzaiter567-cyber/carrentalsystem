@@ -1,0 +1,118 @@
+﻿@model projectadvanced.Models.CustomerProfile
+@{
+    ViewData["Title"] = "My Profile";
+    bool isNew = Model.Id == 0;
+}
+
+<div class="page-header">
+    <h1><i class="fas fa-user me-3"></i>My Profile</h1>
+    <p class="mb-0">@(isNew ? "Complete your profile" : "Update your profile information")</p>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (isNew)
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Profile Incomplete:</strong> Please complete your profile to continue using our services.
+    </div>
+}
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>Profile Information</h5>
+    </div>
+    <div class="card-body">
+        <form asp-action="Index" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="alert alert-danger" role="alert" style="display: none;"></div>
+
+            @if (!isNew)
+            {
+                <input type="hidden" asp-for="Id" />
+            }
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="FullName" class="form-label">
+                        <i class="fas fa-user me-2"></i>Full Name <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
+                    <span asp-validation-for="FullName" style="display: none;"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Phone" class="form-label">
+                        <i class="fas fa-phone me-2"></i>Phone Number <span class="text-danger">*</span>
+                    </label>
+                    <input asp-for="Phone" class="form-control" type="tel" placeholder="e.g., +1234567890" />
+                    <span asp-validation-for="Phone" style="display: none;"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Address" class="form-label">
+                    <i class="fas fa-map-marker-alt me-2"></i>Address
+                </label>
+                <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter your address"></textarea>
+                <span asp-validation-for="Address" style="display: none;"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="LicenseNumber" class="form-label">
+                    <i class="fas fa-id-card me-2"></i>Driver's License Number
+                </label>
+                <input asp-for="LicenseNumber" class="form-control" placeholder="Enter your license number" />
+                <span asp-validation-for="LicenseNumber" style="display: none;"></span>
+                <small class="form-text text-muted">This is required for car rental verification</small>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                <strong>Privacy:</strong> Your information is secure and will only be used for rental purposes.
+            </div>
+
+            <div class="d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>@(isNew ? "Save Profile" : "Update Profile")
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!isNew)
+{
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="fas fa-history me-2"></i>Account Information</h5>
+        </div>
+        <div class="card-body">
+            <ul class="list-unstyled mb-0">
+                <li class="mb-2">
+                    <i class="fas fa-envelope me-2 text-primary"></i>
+                    <strong>Email:</strong> @ViewBag.UserEmail
+                </li>
+                <li class="mb-2">
+                    <i class="fas fa-user me-2 text-primary"></i>
+                    <strong>Username:</strong> @ViewBag.UserName
+                </li>
+            </ul>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
